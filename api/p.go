@@ -1,8 +1,7 @@
-package main
+package handler
 
 import (
 	"fmt"
-	"html/template"
 	"net/http"
 	"strings"
 
@@ -20,31 +19,7 @@ func unEscape(htmlStr string) string {
 	return htmlStr
 }
 
-func main() {
-	r := mux.NewRouter()
-
-	tmpl, err := template.ParseFiles("./public/index.html")
-	if err != nil {
-		panic(err)
-	}
-
-	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		err := tmpl.Execute(w, nil)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-	}).Methods("GET")
-
-	r.HandleFunc("/p", getPage).Methods("GET")
-
-	port := 3000
-	fmt.Printf("Server listening on port %d\n", port)
-	http.Handle("/", r)
-	http.ListenAndServe(fmt.Sprintf(":%d", port), r)
-}
-
-func getPage(w http.ResponseWriter, r *http.Request) {
+func GetPage(w http.ResponseWriter, r *http.Request) {
 
 	originalURL := r.URL.Query().Get("url")
 
@@ -82,4 +57,15 @@ func getPage(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "text/html")
 	fmt.Fprint(w, Data)
+}
+
+func P() {
+	r := mux.NewRouter()
+
+	r.HandleFunc("/p", GetPage).Methods("GET")
+
+	port := 3000
+	fmt.Printf("Server listening on port %d\n", port)
+	http.Handle("/", r)
+	http.ListenAndServe(fmt.Sprintf(":%d", port), r)
 }
